@@ -28,8 +28,8 @@ const psychoJS = new PsychoJS({
 // Google Forms shown after the task; each one holds the matching Prolific completion
 // link (completed vs screened out). The form is chosen on the final screen; there is
 // no cancellation URL, so quitting with Escape does not redirect.
-const FORM_URL_COMPLETED = 'https://docs.google.com/forms/d/e/1FAIpQLScJYzfxXFXITDlRs9NNk_1PfibbBgqXZ8hWkiCgwiEdvFWTXA/viewform?usp=header';
-const FORM_URL_SCREENED_OUT = 'https://docs.google.com/forms/d/e/1FAIpQLSe5alBlW-SVY7CuollygvLlefX_HG-o0FN1oc3EMbs2Je8CJQ/viewform?usp=header';
+const FORM_URL_COMPLETED = 'https://docs.google.com/forms/d/e/1FAIpQLSedIzMqoLadAVOnWt_rXIeKyjN4S1UMMN6tFaFejkzWIcm21A/viewform?usp=header';
+const FORM_URL_SCREENED_OUT = 'https://docs.google.com/forms/d/e/1FAIpQLSewe0q9w7tzh92sUZMMsgYKscpkJoasMyafPs26Z5KdlgBMyA/viewform?usp=header';
 
 // CHECK MODE: trials per testing block (the primed first trial included) for a quick
 // run-through. Set to null for the real experiment (64 trials per block).
