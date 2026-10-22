@@ -2704,7 +2704,7 @@ function init_blockRoutineBegin(snapshot) {
         txt_block = (((((((instruct_begin + "Testing block = ") + iblock.toString()) + "/") + nblocks.toString()) + "\n\n") + instruct_block) + "\n\nPress the space bar to start!");
         if ((iblock === 1)) {
             // remind the testing-phase payment rules before the first testing block
-            txt_block = (instruct_begin + "Testing block = 1/" + nblocks.toString() + "\n\n" + instruct_block + "\n\nYour bonus for each testing block depends on your percentage of correct choices (P):\nP < 55%: -$0.50 (penalty)\n55% ≤ P < 60%: $0\n60% ≤ P < 70%: +$0.50\n70% ≤ P: +$1\nIf you complete all testing blocks, you will receive $" + base_payment.toString() + " plus your total bonus in testing blocks.\nAny negative bonus will not reduce the $" + base_payment.toString() + " base payment.\n\nPress the space bar to start!");
+            txt_block = (instruct_begin + "Testing block = 1/" + nblocks.toString() + "\n\n" + instruct_block + "\n\nYour bonus for each testing block depends on your percentage of correct choices (P):\nP < 55%: -$0.50 (penalty)\n55% ≤ P < 60%: $0\n60% ≤ P < 75%: +$0.50\n75% ≤ P: +$1\nIf you complete all testing blocks, you will receive $" + base_payment.toString() + " plus your total bonus in testing blocks.\nAny negative bonus will not reduce the $" + base_payment.toString() + " base payment.\n\nPress the space bar to start!");
         }
     } else {
         if ((itraining === 1)) {
@@ -4083,7 +4083,7 @@ function feedback_blockRoutineBegin(snapshot) {
               if ((pcorrect < 0.6)) {
                   incent = 0;
               } else {
-                  if ((pcorrect < 0.7)) {
+                  if ((pcorrect < 0.75)) {
                       incent = 0.5;
                   } else {
                       incent = 1;
