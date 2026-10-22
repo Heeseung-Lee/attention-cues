@@ -31,7 +31,7 @@ const CHECK_NTRIALS_TEST = null;
 const CHECK_NTRIALS_SCREEN = null;
 // CHECK MODE: skip the screening blocks and start with the testing blocks (for
 // review). Set to false for the real experiment.
-const CHECK_SKIP_SCREENING = true;
+const CHECK_SKIP_SCREENING = false;
 psychoJS.setRedirectUrls(FORM_URL_COMPLETED, undefined);
 // form for this participant (set on the final screen); also used if saving fails
 let redirect_url = FORM_URL_COMPLETED;
@@ -391,6 +391,7 @@ var size_Flag_w;
 var size_Flag_h;
 var size_fix;
 var width_fix;
+var show_fix;
 var stimidx;
 var stimidx_test;
 var stimidx_prac;
@@ -1330,6 +1331,7 @@ async function experimentInit() {
   size_Flag_h = 1;
   size_fix = 0.03;
   width_fix = 0.01;
+  show_fix = false; // fixation cross at the flag centre (precue and stimulus): off
   size_cue = (size_Stim * 1.3 * 0.8 * 1.1); // diameter of the white ring around a cued fractal
   size_probe_tri = 0.08; // shape check: side of the triangle
   size_probe_sq = 0.064; // shape check: side of the square (about the same extent)
@@ -2986,7 +2988,9 @@ function precueRoutineBegin(snapshot) {
     precueComponents = [];
     precueComponents.push(Flag_precue);
     precueComponents.push(text_trialinfo);
-    precueComponents.push(precue_fix);
+    if (show_fix) {
+      precueComponents.push(precue_fix);
+    }
     // primed trial: the ring on the cued feature appears with the precue (cue_stim keeps
     // it on during the stimulus)
     if (isPrime) {
@@ -3062,7 +3066,7 @@ function precueRoutineEachFrame() {
     
     
     // *precue_fix* updates
-    if (t >= 0.0 && precue_fix.status === PsychoJS.Status.NOT_STARTED) {
+    if (show_fix && t >= 0.0 && precue_fix.status === PsychoJS.Status.NOT_STARTED) {
       // keep track of start time/frame for later
       precue_fix.tStart = t;  // (not accounting for frame time here)
       precue_fix.frameNStart = frameN;  // exact frame index
@@ -3205,7 +3209,9 @@ function stimulusRoutineBegin(snapshot) {
     stimulusComponents.push(image_C);
     stimulusComponents.push(key_resp);
     stimulusComponents.push(text_trialinfo_2);
-    stimulusComponents.push(stim_fix);
+    if (show_fix) {
+      stimulusComponents.push(stim_fix);
+    }
     if (isPrime) {
       stimulusComponents.push(cue_stim);
     }
@@ -3418,7 +3424,7 @@ function stimulusRoutineEachFrame() {
       
       
       // *stim_fix* updates
-      if (t >= 0.0 && stim_fix.status === PsychoJS.Status.NOT_STARTED) {
+      if (show_fix && t >= 0.0 && stim_fix.status === PsychoJS.Status.NOT_STARTED) {
         // keep track of start time/frame for later
         stim_fix.tStart = t;  // (not accounting for frame time here)
         stim_fix.frameNStart = frameN;  // exact frame index
