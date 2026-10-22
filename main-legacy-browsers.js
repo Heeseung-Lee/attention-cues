@@ -1006,6 +1006,96 @@ function test_introRoutineEnd(snapshot) {
   }
 }
 
+// before the first trial of each testing block (after the start shape check): respond
+// with F / K, fingers on the keys, space to start
+var readyClock;
+var ready_txt;
+var ready_key;
+var ready_show;
+var _ready_allKeys;
+var readyComponents;
+function readyRoutineBegin(snapshot) {
+  return async function () {
+    TrialHandler.fromSnapshot(snapshot); // ensure that .thisN vals are up to date
+    t = 0;
+    frameN = -1;
+    continueRoutine = true;
+    routineForceEnded = false;
+    readyClock.reset();
+    routineTimer.reset();
+    ready_show = ((itraining === 0) && (ctrial === 1));
+    if (!ready_show) {
+      continueRoutine = false;
+      return Scheduler.Event.NEXT;
+    }
+    //--- Prepare to start Routine 'ready' ---
+    ready_txt.setText("From now on, you will respond with the F and K keys.\nPlease place your index fingers on the F and K keys.\n\nWhen you are ready, press the space bar to start.");
+    ready_key.keys = undefined;
+    ready_key.rt = undefined;
+    _ready_allKeys = [];
+    psychoJS.experiment.addData('ready.started', globalClock.getTime());
+    readyComponents = [ready_txt, ready_key];
+    readyComponents.forEach(function (thisComponent) {
+      if ('status' in thisComponent) {
+        thisComponent.status = PsychoJS.Status.NOT_STARTED;
+      }
+    });
+    return Scheduler.Event.NEXT;
+  }
+}
+
+function readyRoutineEachFrame() {
+  return async function () {
+    if (!ready_show) {
+      return Scheduler.Event.NEXT;
+    }
+    t = readyClock.getTime();
+    frameN = frameN + 1;
+    if (t >= 0.0 && ready_txt.status === PsychoJS.Status.NOT_STARTED) {
+      ready_txt.tStart = t;
+      ready_txt.frameNStart = frameN;
+      ready_txt.setAutoDraw(true);
+    }
+    if (t >= 0.0 && ready_key.status === PsychoJS.Status.NOT_STARTED) {
+      ready_key.tStart = t;
+      ready_key.frameNStart = frameN;
+      psychoJS.window.callOnFlip(function() { ready_key.clock.reset(); });
+      psychoJS.window.callOnFlip(function() { ready_key.start(); });
+      psychoJS.window.callOnFlip(function() { ready_key.clearEvents(); });
+    }
+    if (ready_key.status === PsychoJS.Status.STARTED) {
+      const theseKeys = ready_key.getKeys({keyList: ['space'], waitRelease: false});
+      _ready_allKeys = _ready_allKeys.concat(theseKeys);
+      if ((_ready_allKeys.length > 0)) {
+        ready_key.rt = _ready_allKeys[_ready_allKeys.length - 1].rt;
+        continueRoutine = false;
+      }
+    }
+    // check for quit (typically the Esc key)
+    if (psychoJS.experiment.experimentEnded || psychoJS.eventManager.getKeys({keyList:['escape']}).length > 0) {
+      return quitPsychoJS('The [Escape] key was pressed. Goodbye!', false);
+    }
+    if (!continueRoutine) {
+      routineForceEnded = true;
+      return Scheduler.Event.NEXT;
+    }
+    return Scheduler.Event.FLIP_REPEAT;
+  };
+}
+
+function readyRoutineEnd(snapshot) {
+  return async function () {
+    if (ready_show) {
+      ready_txt.setAutoDraw(false);
+      ready_key.stop();
+      psychoJS.experiment.addData('ready.stopped', globalClock.getTime());
+      psychoJS.experiment.addData('ready.rt', ready_key.rt);
+    }
+    routineTimer.reset();
+    return Scheduler.Event.NEXT;
+  }
+}
+
 // warning after the feedback of a too-fast response (RT <= rt_too_fast), shown for
 // time_fast_warning s; skipped on all other trials and on the primed trials of a
 // testing block
@@ -1776,6 +1866,21 @@ async function experimentInit() {
   });
   test_intro_key = new core.Keyboard({psychoJS: psychoJS, clock: new util.Clock(), waitForStart: true});
 
+  // Initialize components for Routine "ready"
+  readyClock = new util.Clock();
+  ready_txt = new visual.TextStim({
+    win: psychoJS.window,
+    name: 'ready_txt',
+    text: '',
+    font: 'Arial',
+    units: undefined,
+    pos: [0, 0], draggable: false, height: txt_block_instruction,  wrapWidth: 1.3, ori: 0.0,
+    languageStyle: 'LTR',
+    color: new util.Color('white'),  opacity: undefined,
+    depth: -1.0
+  });
+  ready_key = new core.Keyboard({psychoJS: psychoJS, clock: new util.Clock(), waitForStart: true});
+
   // Initialize components for Routine "fast_warning"
   fast_warningClock = new util.Clock();
   fast_warning_txt = new visual.TextStim({
@@ -2136,6 +2241,9 @@ function trial_loopLoopBegin(trial_loopLoopScheduler, snapshot) {
       trial_loopLoopScheduler.add(probeRoutineBegin(snapshot, 'start'));
       trial_loopLoopScheduler.add(probeRoutineEachFrame());
       trial_loopLoopScheduler.add(probeRoutineEnd(snapshot));
+      trial_loopLoopScheduler.add(readyRoutineBegin(snapshot));
+      trial_loopLoopScheduler.add(readyRoutineEachFrame());
+      trial_loopLoopScheduler.add(readyRoutineEnd(snapshot));
       trial_loopLoopScheduler.add(precueRoutineBegin(snapshot));
       trial_loopLoopScheduler.add(precueRoutineEachFrame());
       trial_loopLoopScheduler.add(precueRoutineEnd(snapshot));
