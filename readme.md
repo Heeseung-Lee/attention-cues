@@ -11,9 +11,8 @@ first-trial outcome), run in the browser with PsychoJS and hosted as static file
   - `<participant>_main_<date>.csv` — the complete results, saved just before the final
     screen (completed or screened out) or when the participant presses Escape.
   - `partial_<participant>_main_<date>_<nn>.csv` — everything so far, after every block
-    (screening and testing), so a crash or closed tab loses at most one block. Once the
-    complete file exists, `tools/cleanup_partials.gs` (Google Apps Script, setup step 7)
-    moves them to the Drive trash; sessions without a complete file keep them.
+    (screening and testing), so a crash or closed tab loses at most one block. Ignore
+    them when the complete file exists.
 - The PsychoJS library is in `lib/` and is deployed with the experiment.
 - The start dialog's OK button stays disabled until every image is loaded
   (`OKAlwaysEnabledForLocal: false`).
@@ -48,9 +47,6 @@ first-trial outcome), run in the browser with PsychoJS and hosted as static file
 6. **Prolific**: set the study URL to
    `https://<site>/index.html?PROLIFIC_PID={{%PROLIFIC_PID%}}&STUDY_ID={{%STUDY_ID%}}&SESSION_ID={{%SESSION_ID%}}`.
    Completion goes through the Google Forms set in `main.js`.
-7. **Partial-file cleanup**: at https://script.google.com, signed in with the Google account
-   that owns the DataPipe folder, create a project, paste `tools/cleanup_partials.gs` and
-   run `installTrigger` once (it then runs every 10 minutes).
 
 ## Notes
 
