@@ -613,7 +613,7 @@ function _screenOrder(ans, nEpochs) {
 // n shape checks: shape 0 = triangle, 1 = square; map 0: triangle = E and square = O,
 // map 1: the reverse. Whole sets of the four map x shape combinations, plus a
 // complementary pair (and one random combination) for the remainder, so both mapping
-// and shape are balanced (5/4 for 9 checks); random order.
+// and shape are balanced (9/9 for 18 checks); random order.
 function _probeSeq(n) {
   const combos = [[0, 0], [0, 1], [1, 0], [1, 1]];
   const seq = [];
@@ -1086,11 +1086,11 @@ function fast_warningRoutineEnd(snapshot) {
   }
 }
 
-// shape check (attention check), testing blocks only, once per block: after the feedback
-// of trial probe_trial (random, between 3/6 and 5/6 of the block and not before the last
-// primed trial; see init_block). A white triangle or square appears at the centre of the
-// flag with the key mapping just below it. It stays until E or O is pressed (keys kept
-// apart from the F/K choice; no time limit, no feedback).
+// shape check (attention check), testing blocks only, twice per block: before the first
+// trial ('start') and after the feedback of the last trial ('end'). A white triangle or
+// square appears at the centre of the flag with the key mapping just below it. It stays
+// until E or O is pressed (keys kept apart from the F/K choice; no time limit, no
+// feedback).
 var probeClock;
 var Flag_probe;
 var text_trialinfo_probe;
@@ -1108,9 +1108,10 @@ var size_probe_txt;
 var probe_txt_x;
 var probe_shape_x;
 var probe_row_y;
+var probe_when;
 var _probe_allKeys;
 var probeComponents;
-function probeRoutineBegin(snapshot) {
+function probeRoutineBegin(snapshot, when) {
   return async function () {
     TrialHandler.fromSnapshot(snapshot); // ensure that .thisN vals are up to date
     t = 0;
@@ -1119,13 +1120,14 @@ function probeRoutineBegin(snapshot) {
     routineForceEnded = false;
     probeClock.reset();
     routineTimer.reset();
-    probe_show = ((itraining === 0) && (ctrial === probe_trial));
+    probe_when = when;
+    probe_show = ((itraining === 0) && (ctrial === ((when === 'start') ? 1 : intrials)));
     if (!probe_show) {
       continueRoutine = false;
       return Scheduler.Event.NEXT;
     }
     //--- Prepare to start Routine 'probe' ---
-    const _p = probe_seq[idx_block];
+    const _p = probe_seq[((2 * idx_block) + ((when === 'start') ? 0 : 1))];
     probe_map = _p.map;
     probe_shape = _p.shape;
     // map 0: triangle = E, square = O; map 1: the reverse
@@ -1135,11 +1137,12 @@ function probeRoutineBegin(snapshot) {
     probe_map_tri.setPos([probe_shape_x, probe_row_y[probe_map]]);
     probe_map_sq.setPos([probe_shape_x, probe_row_y[(1 - probe_map)]]);
     text_trialinfo_probe.setPos([pos_trialinfo_x, pos_trialinfo_y]);
-    text_trialinfo_probe.setText(text_trial);
+    // before the first trial only the block count (text_trial is set in precue)
+    text_trialinfo_probe.setText(((when === 'start') ? ("Block = " + iblock.toString() + "/" + inblocks.toString()) : text_trial));
     probe_key.keys = undefined;
     probe_key.rt = undefined;
     _probe_allKeys = [];
-    psychoJS.experiment.addData('probe.started', globalClock.getTime());
+    psychoJS.experiment.addData(('probe_' + when + '.started'), globalClock.getTime());
     probeComponents = [Flag_probe, text_trialinfo_probe, _shape, probe_txt_E, probe_txt_O, probe_map_tri, probe_map_sq, probe_key];
     probeComponents.forEach(function (thisComponent) {
       if ('status' in thisComponent) {
@@ -1204,7 +1207,7 @@ function probeRoutineEnd(snapshot) {
       probe_corr = ((probe_key.keys === probe_corrkey) ? 1 : 0);
       probe_n += 1;
       probe_ncorrect += probe_corr;
-      const _pre = 'probe_';
+      const _pre = ('probe_' + probe_when + '_');
       psychoJS.experiment.addData((_pre.slice(0, -1) + '.stopped'), globalClock.getTime());
       psychoJS.experiment.addData((_pre + 'shape'), ((probe_shape === 0) ? 'triangle' : 'square'));
       psychoJS.experiment.addData((_pre + 'map'), ((probe_map === 0) ? 'triangle=E' : 'triangle=O'));
@@ -1293,9 +1296,10 @@ async function experimentInit() {
       } while (out[0] !== first_outcome_major);
       return out;
   })();
-  // shape check per testing block (see probeRoutineBegin): probe_seq[i] is the check of
-  // block i+1; mapping and shape are each balanced over the checks
-  probe_seq = _probeSeq(nblocks);
+  // shape checks per testing block (see probeRoutineBegin): probe_seq[2*i] / [2*i+1]
+  // are the start / end checks of block i+1; mapping and shape are each balanced over
+  // all checks
+  probe_seq = _probeSeq((2 * nblocks));
   // cued feature of the first primed trial of screening blocks 2 and 3: two different
   // features, at random
   screen_first_dims = [0, 1, 2];
@@ -2057,7 +2061,6 @@ var screen_exc = null;
 // check (probe), and the running score
 var probe_seq;
 var probe_show = false;
-var probe_trial;
 var probe_map;
 var probe_shape;
 var probe_corrkey;
@@ -2131,6 +2134,9 @@ function trial_loopLoopBegin(trial_loopLoopScheduler, snapshot) {
       trial_loopLoopScheduler.add(test_introRoutineBegin(snapshot));
       trial_loopLoopScheduler.add(test_introRoutineEachFrame());
       trial_loopLoopScheduler.add(test_introRoutineEnd(snapshot));
+      trial_loopLoopScheduler.add(probeRoutineBegin(snapshot, 'start'));
+      trial_loopLoopScheduler.add(probeRoutineEachFrame());
+      trial_loopLoopScheduler.add(probeRoutineEnd(snapshot));
       trial_loopLoopScheduler.add(precueRoutineBegin(snapshot));
       trial_loopLoopScheduler.add(precueRoutineEachFrame());
       trial_loopLoopScheduler.add(precueRoutineEnd(snapshot));
@@ -2143,7 +2149,7 @@ function trial_loopLoopBegin(trial_loopLoopScheduler, snapshot) {
       trial_loopLoopScheduler.add(fast_warningRoutineBegin(snapshot));
       trial_loopLoopScheduler.add(fast_warningRoutineEachFrame());
       trial_loopLoopScheduler.add(fast_warningRoutineEnd(snapshot));
-      trial_loopLoopScheduler.add(probeRoutineBegin(snapshot));
+      trial_loopLoopScheduler.add(probeRoutineBegin(snapshot, 'end'));
       trial_loopLoopScheduler.add(probeRoutineEachFrame());
       trial_loopLoopScheduler.add(probeRoutineEnd(snapshot));
       trial_loopLoopScheduler.add(summary_trialRoutineBegin(snapshot));
@@ -2654,17 +2660,10 @@ function init_blockRoutineBegin(snapshot) {
     prime_plan = [];
     first_target = NaNVal;
     map_flipped = 0;
-    probe_trial = NaNVal;
     if ((itraining === 0)) {
         prime_dim = prime_dim_blocks[idx_block];
         first_target = first_outcome_blocks[idx_block];
         prime_plan = _primePlan(true, intrials, prime_dim, {1: [0, 1], 2: [0, 2], 3: [1, 2]}[idx_answer]);
-        // shape check after the feedback of a random trial between 3/6 and 5/6 of the
-        // block, and not before the last primed trial
-        const _lastPrime = Math.max(...prime_plan.map(function (p) { return p.trial; }));
-        const _lo = Math.max(Math.ceil(((intrials * 3) / 6)), _lastPrime);
-        const _hi = Math.max(Math.floor(((intrials * 5) / 6)), _lo);
-        probe_trial = (_lo + util.randint(0, ((_hi - _lo) + 1)));
     } else {
         if ((iblock >= 2)) {
             prime_dim = screen_first_dims[(iblock - 2)];
@@ -2843,7 +2842,6 @@ function init_blockRoutineEnd(snapshot) {
     psychoJS.experiment.addData("idx_Cs", idx_Cs);
     psychoJS.experiment.addData("prime_dim", prime_dim);
     psychoJS.experiment.addData("prime_plan", JSON.stringify(prime_plan));
-    psychoJS.experiment.addData("probe_trial", probe_trial);
     psychoJS.experiment.addData("screen_seq", ((screen_seq !== null) ? screen_seq : ""));
     psychoJS.experiment.addData("screen_exc", ((screen_exc !== null) ? JSON.stringify(screen_exc) : ""));
 
