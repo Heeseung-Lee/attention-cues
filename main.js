@@ -33,13 +33,13 @@ const FORM_URL_SCREENED_OUT = 'https://docs.google.com/forms/d/e/1FAIpQLSewe0q9w
 
 // CHECK MODE: trials per testing block (the primed first trial included) for a quick
 // run-through. Set to null for the real experiment (64 trials per block).
-const CHECK_NTRIALS_TEST = null;
+const CHECK_NTRIALS_TEST = 5;
 // CHECK MODE: trial cap per screening block (before its test, if nscreen_test > 0; a
 // multiple of 8 keeps the test balanced). Set to null for the real experiment (130 trials).
 const CHECK_NTRIALS_SCREEN = null;
 // CHECK MODE: skip the screening blocks and start with the testing blocks (for
 // review). Set to false for the real experiment.
-const CHECK_SKIP_SCREENING = false;
+const CHECK_SKIP_SCREENING = true;
 psychoJS.setRedirectUrls(FORM_URL_COMPLETED, undefined);
 // form for this participant (set on the final screen); also used if saving fails
 let redirect_url = FORM_URL_COMPLETED;
