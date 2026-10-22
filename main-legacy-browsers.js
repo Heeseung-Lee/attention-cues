@@ -31,7 +31,7 @@ const CHECK_NTRIALS_TEST = null;
 const CHECK_NTRIALS_SCREEN = null;
 // CHECK MODE: skip the screening blocks and start with the testing blocks (for
 // review). Set to false for the real experiment.
-const CHECK_SKIP_SCREENING = false;
+const CHECK_SKIP_SCREENING = true;
 psychoJS.setRedirectUrls(FORM_URL_COMPLETED, undefined);
 // form for this participant (set on the final screen); also used if saving fails
 let redirect_url = FORM_URL_COMPLETED;
